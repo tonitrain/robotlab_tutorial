@@ -221,9 +221,9 @@ python -m pip install -e source/robot_lab
 
 ```Plaintext
 @configclass
-class DoggedGymEnvCfg(ManagerBasedRLEnvCfg):
+class LocomotionVelocityRoughEnvCfg(ManagerBasedRLEnvCfg):
     # Scene settings
-    scene: DoggedGymSceneCfg = DoggedGymSceneCfg(
+    scene: MySceneCfg = MySceneCfg(
         num_envs=4096,
         env_spacing=2.5,
     )
@@ -355,13 +355,13 @@ sky_light = AssetBaseCfg(
 
 ```Plaintext
 def ang_vel_xy_l2(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
-    //获取训练环境的资产
+    # 获取训练环境的资产
     asset: RigidObject = env.scene[asset_cfg.name]
-    //通过资产获取机器人base的xy平面的的角速度，获取一个[num_envs, 2]的tensor,再通过square和sum把他变成一个[num_envs]维度的tensor，每一维都放着各自环境的奖励
+    # 通过资产获取机器人base的xy平面的的角速度，获取一个[num_envs, 2]的tensor,再通过square和sum把他变成一个[num_envs]维度的tensor，每一维都放着各自环境的奖励
     reward = torch.sum(torch.square(asset.data.root_ang_vel_b[:, :2]), dim=1)
-    //在奖励输出前乘一个机器人自身方向表示直立程度，表示姿态稳定性权重因子
+    # 在奖励输出前乘一个机器人自身方向表示直立程度，表示姿态稳定性权重因子
     reward *= torch.clamp(-env.scene["robot"].data.projected_gravity_b[:, 2], 0, 0.7) / 0.7
-    //输出奖励
+    # 输出奖励
     return reward
 ```
 
@@ -1021,7 +1021,7 @@ $$A_t = \sum_{l=0}^{\infty}(\gamma\lambda)^l \delta_{t+l}$$
 
 $$\delta_t = r_t + \gamma V(s_{t+1}) - V(s_t)$$
 
-也就是当下获得的奖励\+下一次的奖励\-这次的预测值=预测误差
+当前奖励 + 折扣后的下一状态价值估计 - 当前状态价值估计
 
 其中折扣因子γ，表示机器人注重短期还是长期
 
