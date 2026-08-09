@@ -60,7 +60,7 @@ num_steps_per_env=24
 
 一次rollout的数据量为
 
-4096×24\=983044096×24=98304
+$$4096 \times 24 = 98304$$
 
 **max\_iterations**：表示PPO进行N轮策略更新，及N次iteration。在一次iteration中进行以下几个步骤
 
@@ -80,15 +80,15 @@ policy由RslRlPpoActorCriticCfg类配置，用于配置actor-critic网络
 
 Isaac Lab中的连续动作采用高斯策略
 
-πθ​(a∣s)\=N(μθ​(s),σ2)π\_{θ​(a∣s)}=N(μθ​(s),σ^2)
+$$\pi_\theta(a|s) = \mathcal{N}(\mu_\theta(s), \sigma^2)$$
 
 其中Actor输出：
 
-μθ​(s)μθ​(s)
+$$\mu_\theta(s)$$
 
 动作：
 
-a\=μθ​(s)+σϵa=μθ​(s)+σϵ
+$$a = \mu_\theta(s) + \sigma\epsilon$$
 
 σ反映当前策略的不确定性，通常训练后期会降低，在训练时通过tentorboard也可以观察std来判断策略有没有收敛
 
@@ -104,39 +104,39 @@ a\=μθ​(s)+σϵa=μθ​(s)+σϵ
 
 首先我们明确，PPO的目标
 
-L\=−LCLIP+c1​LV​−c2​H(π)​L=−L\_{CLIP}+c\_1​L\_V​−c\_2​H(π)​
+$$L = -L_{CLIP} + c_1 L_V - c_2 H(\pi)$$
 
 其中各项函数
 
 actor裁剪损失:
 
-LCLIP(θ)\=Et​\[min(rt​(θ)At​,clip(rt​(θ),1−ϵ,1+ϵ)At​)\]L\_{CLIP}(θ)=E\_t​\[min(r\_t​(θ)A\_t​,clip(r\_t​(θ),1−ϵ,1+ϵ)A\_t​)\]
+$$L_{CLIP}(\theta) = E_t\left[\min\left(r_t(\theta)A_t,\ \operatorname{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon)A_t\right)\right]$$
 
 价值损失：
 
-LV\=(Vϕ​(st​)−Vtarget​)2​L\_V=(Vϕ​(st​)−Vtarget​)^2​
+$$L_V = (V_\phi(s_t) - V_{target})^2$$
 
 熵正则项:
 
-H(π)\=−E\[logπ(a∣s)\]H(π)=−E\[logπ(a∣s)\]
+$$H(\pi) = -E[\log \pi(a|s)]$$
 
 **value\_loss\_coef**：Critic损失
 
-在PPO算法中critic网络负责预测真实的价值Vtarget​V\_{target​}
+在PPO算法中critic网络负责预测真实的价值 $V_{target}$
 
 损失
 
-LV\=(Vϕ​(st​)−Vtarget​)2​L\_V=(Vϕ​(st​)−Vtarget​)2​
+$$L_V = (V_\phi(s_t) - V_{target})^2$$
 
 总Loss中
 
-L\=−LCLIP+c1​LV​−c2​H(π)​L=−L\_{CLIP}+c\_1​L\_V​−c\_2​H(π)​
+$$L = -L_{CLIP} + c_1 L_V - c_2 H(\pi)$$
 
 c1就是value\_loss\_coef
 
 **use\_clipped\_value\_loss**：是否开启价值网络裁切，开启后Lv就会变成
 
-LV​\=max((Vϕ​−Vtarget​)2,(Vclip​−Vtarget​)2)L\_V​=max((Vϕ​−Vtarget​)^2,(Vclip​−Vtarget​)^2)
+$$L_V = \max\left((V_\phi - V_{target})^2,\ (V_{clip} - V_{target})^2\right)$$
 
 限制critic一次更新幅度，避免value function过拟合当前batch
 
@@ -144,7 +144,7 @@ LV​\=max((Vϕ​−Vtarget​)2,(Vclip​−Vtarget​)2)L\_V​=max((Vϕ​�
 
 **entropy\_coef**：策略熵系数，用于确定策略探索程度，也就是公式中的c2，
 
-H(π)\=−E\[logπ(a∣s)\]H(π)=−E\[logπ(a∣s)\]
+$$H(\pi) = -E[\log \pi(a|s)]$$
 
 0.01就是表示鼓励探索，在训练基本收敛之后可以将这个值设小，以达到更收敛的状态
 
@@ -154,11 +154,11 @@ H(π)\=−E\[logπ(a∣s)\]H(π)=−E\[logπ(a∣s)\]
 
 这两个均用于GAE优势估计
 
-At​\=∑l\=0∞(γλ)lδt+l​​A\_t​=\\sum\_{l=0}^{∞}(γλ)^lδ\_{t+l​}​
+$$A_t = \sum_{l=0}^{\infty}(\gamma\lambda)^l \delta_{t+l}$$
 
 其中δ表示TD误差
 
-δt\=rt+γV(st+1)−V(st)δ\_t=r\_t+γV(s\_t+1)−V(s\_t)
+$$\delta_t = r_t + \gamma V(s_{t+1}) - V(s_t)$$
 
 也就是当下获得的奖励+下一次的奖励-这次的预测值=预测误差
 
@@ -183,19 +183,19 @@ steps=24
 
 那么每个mini\_batch的数量为
 
-98304 / 4\=2457698304 ~/~ 4 = 24576
+$$98304 / 4 = 24576$$
 
 **learning\_rate**：学习率
 
 用于控制梯度下降的参数α
 
-θ\=θ−α∇Lθ=θ−α∇L
+$$\theta = \theta - \alpha\nabla L$$
 
 **schedule**：学习策略，adaptive表示动态调整学习率
 
 如果
 
-KL\>desired KLKL>desired ~KL
+$$KL > desired\_KL$$
 
 那么降低learning rate，反之亦然
 
@@ -205,18 +205,18 @@ KL\>desired KLKL>desired ~KL
 
 比如假设我们得到的梯度
 
-g\=\[34\]g= \\begin{bmatrix} 3\\\\ 4 \\end{bmatrix}
+$$g = \begin{bmatrix} 3 \\ 4 \end{bmatrix}$$
 
 然后他的二范数
 
-||g||2\=32+42\=5||g||\_2 = \\sqrt{3^2 + 4^2} = 5
+$$\|g\|_2 = \sqrt{3^2 + 4^2} = 5$$
 
 可以得到
 
-||g||\>1||g|| >1
+$$\|g\| > 1$$
 
 那么我们等比缩小
 
-gnew\=g×1||g||\=\[34\]×15\=\[0.60.8\]g\_{new} = g\\times\\frac{1}{||g||} = \\begin{bmatrix} 3\\\\ 4 \\end{bmatrix} \\times \\frac{1}{5} = \\begin{bmatrix} 0.6\\\\ 0.8 \\end{bmatrix}
+$$g_{new} = g \times \frac{1}{\|g\|} = \begin{bmatrix} 3 \\ 4 \end{bmatrix} \times \frac{1}{5} = \begin{bmatrix} 0.6 \\ 0.8 \end{bmatrix}$$
 
 可以看到梯度变化减小了，但是更新方向没有改变
